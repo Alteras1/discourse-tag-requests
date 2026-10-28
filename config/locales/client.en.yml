@@ -3,7 +3,7 @@ en:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Plugin Name"
+          discourse_tag_requests: "Discourse Tag Requests"
   js:
-    discourse_plugin_name:
+    discourse_tag_requests:
       placeholder: placeholder

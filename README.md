@@ -1,4 +1,4 @@
-# **Plugin Name** Plugin
+# **Discourse Tag Requests** Plugin
 
 **Plugin Summary**
 
