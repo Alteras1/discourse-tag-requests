@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # name: discourse-tag-requests
-# about: Lets users suggest new tags on their topics for staff to review.
+# about: Lets users request new tags on their topics for staff to review.
 # meta_topic_id: TODO
 # version: 0.0.1
 # authors: Alteras1
@@ -16,4 +16,8 @@ end
 
 require_relative "lib/discourse_tag_requests/engine"
 
-after_initialize { reloadable_patch { Topic.prepend(DiscourseTagRequests::TopicExtension) } }
+after_initialize do
+  reloadable_patch { Topic.prepend(DiscourseTagRequests::TopicExtension) }
+
+  register_reviewable_type ReviewableTagRequest
+end

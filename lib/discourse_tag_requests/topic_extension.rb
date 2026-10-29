@@ -5,8 +5,8 @@ module DiscourseTagRequests
     extend ActiveSupport::Concern
 
     prepended do
-      has_many :tag_suggestion_topics,
-               class_name: "DiscourseTagRequests::TagSuggestionTopic",
+      has_many :tag_request_topics,
+               class_name: "DiscourseTagRequests::TagRequestTopic",
                dependent: :delete_all
     end
   end

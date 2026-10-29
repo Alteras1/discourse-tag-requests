@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 module DiscourseTagRequests
-  class TagSuggestion < ActiveRecord::Base
-    self.table_name = "tag_suggestions"
+  class TagRequest < ActiveRecord::Base
+    self.table_name = "tag_requests"
 
     enum :status, { pending: 0, soft_rejected: 1, hard_rejected: 2 }
 
     belongs_to :reviewable
-    has_many :tag_suggestion_topics,
-             class_name: "DiscourseTagRequests::TagSuggestionTopic",
+    has_many :tag_request_topics,
+             class_name: "DiscourseTagRequests::TagRequestTopic",
              dependent: :delete_all
-    has_many :topics, through: :tag_suggestion_topics
+    has_many :topics, through: :tag_request_topics
 
     validates :name, presence: true
 
@@ -22,7 +22,7 @@ end
 
 # == Schema Information
 #
-# Table name: tag_suggestions
+# Table name: tag_requests
 #
 #  id              :bigint           not null, primary key
 #  name            :string           not null
@@ -34,6 +34,6 @@ end
 #
 # Indexes
 #
-#  index_tag_suggestions_on_normalized_name  (normalized_name) UNIQUE
-#  index_tag_suggestions_on_reviewable_id    (reviewable_id) UNIQUE
+#  index_tag_requests_on_normalized_name  (normalized_name) UNIQUE
+#  index_tag_requests_on_reviewable_id    (reviewable_id) UNIQUE
 #
