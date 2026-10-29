@@ -2,3 +2,13 @@ discourse_tag_requests:
   discourse_tag_requests_enabled:
     default: false
     client: true
+  max_suggested_tags_per_topic:
+    default: 3
+    min: 1
+    client: true
+  suggested_tags_visible_to_groups:
+    type: group_list
+    list_type: compact
+    default: "1|2" # @admins, @moderators
+    mandatory_values: "1|2" # @admins, @moderators
+    allow_any: false

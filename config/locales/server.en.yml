@@ -1,1 +1,5 @@
 en:
+  site_settings:
+    discourse_tag_requests_enabled: "Let users who can't create tags suggest new tags when creating a topic. Suggestions are reviewed by staff in the review queue."
+    max_suggested_tags_per_topic: "Maximum number of new tags a user can suggest for one topic. Suggestions also count toward {{setting:max_tags_per_topic}}."
+    suggested_tags_visible_to_groups: "Groups that can see pending tag suggestions on topics and filter by them. Staff and the topic's author can always see suggestions on that topic."
