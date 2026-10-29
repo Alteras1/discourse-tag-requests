@@ -36,4 +36,38 @@ after_initialize do
       guardian: user.guardian,
     )
   end
+
+  add_filter_custom_filter("pending-tag") do |scope, values, guardian|
+    DiscourseTagRequests::PendingTagFilter.new(scope:, values:, guardian:).call
+  end
+
+  # Authors always see requests on their own topics, so any signed-in user
+  # may have something to filter by.
+  register_modifier(:topics_filter_options) do |results, guardian|
+    if guardian.authenticated? ||
+         guardian.in_any_groups?(SiteSetting.tag_requests_visible_to_groups_map)
+      results << {
+        name: "pending-tag:",
+        description: I18n.t("discourse_tag_requests.filter.description.pending_tag"),
+        type: "text",
+        delimiters: [
+          {
+            name: ",",
+            description: I18n.t("discourse_tag_requests.filter.description.pending_tag_any"),
+          },
+          {
+            name: "+",
+            description: I18n.t("discourse_tag_requests.filter.description.pending_tag_all"),
+          },
+        ],
+        prefixes: [
+          {
+            name: "-",
+            description: I18n.t("discourse_tag_requests.filter.description.exclude_pending_tag"),
+          },
+        ],
+      }
+    end
+    results
+  end
 end

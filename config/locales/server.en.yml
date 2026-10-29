@@ -7,3 +7,9 @@ en:
     reviewables:
       resolution_failed: "This tag request could not be resolved. It may have already been handled."
       tag_not_found: "The selected tag no longer exists."
+    filter:
+      description:
+        pending_tag: "Show topics with a specific pending tag request"
+        pending_tag_any: "Show topics with any of the specified pending tag requests (comma-separated)"
+        pending_tag_all: "Show topics with all of the specified pending tag requests (plus-separated)"
+        exclude_pending_tag: "Exclude topics with a specific pending tag request"
