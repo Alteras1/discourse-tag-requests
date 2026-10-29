@@ -113,6 +113,8 @@ class ReviewableTagRequest < Reviewable
         payload.merge(
           "resolution" => resolution,
           "tag_id" => tag&.id,
+          "tag_name" => tag&.name,
+          "tag_slug" => tag&.slug_for_url,
           "topic_ids" => associated_topic_ids,
           "requester_ids" => requester_ids,
           "skipped" => skipped,

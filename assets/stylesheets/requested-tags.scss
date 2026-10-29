@@ -1,0 +1,32 @@
+.discourse-tag.requested-tag {
+  color: var(--primary-medium);
+
+  .d-icon {
+    font-size: var(--font-down-2);
+    margin-right: 0.25em;
+  }
+}
+
+.reviewable-tag-request {
+  &__topics,
+  &__requesters {
+    list-style: none;
+    margin: 0;
+  }
+
+  &__requesters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em;
+
+    li:not(:last-child)::after {
+      content: ",";
+    }
+  }
+
+  &__skip-reason {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    margin-left: 0.5em;
+  }
+}

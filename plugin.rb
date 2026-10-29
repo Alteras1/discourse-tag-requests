@@ -10,6 +10,8 @@
 
 enabled_site_setting :discourse_tag_requests_enabled
 
+register_asset "stylesheets/requested-tags.scss"
+
 module ::DiscourseTagRequests
   PLUGIN_NAME = "discourse-tag-requests"
 end
@@ -48,11 +50,15 @@ after_initialize do
     topics.each { |topic| topic.preload_requested_tag_names(names_by_topic_id[topic.id]) }
   end
 
-  add_to_serializer(
-    :topic_list_item,
-    :requested_tags,
-    include_condition: -> { object.requested_tag_names.present? },
-  ) { object.requested_tag_names }
+  # Suggested and related topics are serialized separately from topic lists,
+  # but their topics are still loaded through `TopicList`, so they're preloaded.
+  %i[topic_list_item suggested_topic].each do |serializer|
+    add_to_serializer(
+      serializer,
+      :requested_tags,
+      include_condition: -> { object.requested_tag_names.present? },
+    ) { object.requested_tag_names }
+  end
 
   add_to_serializer(
     :topic_view,

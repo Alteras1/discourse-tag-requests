@@ -175,6 +175,8 @@ RSpec.describe ReviewableTagRequest do
         "previous_reviewable_id" => previous_reviewable_id,
         "resolution" => "existing",
         "tag_id" => tag.id,
+        "tag_name" => tag.name,
+        "tag_slug" => tag.slug_for_url,
         "topic_ids" => [association.topic_id],
         "requester_ids" => [association.requested_by_id],
         "skipped" => {

@@ -3,7 +3,13 @@
 require_dependency "reviewable_serializer"
 
 class ReviewableTagRequestSerializer < ReviewableSerializer
-  payload_attributes :name, :previous_reviewable_id, :resolution, :tag_id, :skipped
+  payload_attributes :name,
+                     :previous_reviewable_id,
+                     :resolution,
+                     :tag_id,
+                     :tag_name,
+                     :tag_slug,
+                     :skipped
 
   attributes :existing_tag
 

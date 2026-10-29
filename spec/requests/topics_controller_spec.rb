@@ -23,5 +23,14 @@ RSpec.describe TopicsController do
 
       expect(response.parsed_body).not_to have_key("requested_tags")
     end
+
+    it "includes pending requested tags on suggested topics" do
+      sign_in(Fabricate(:admin))
+      get "/t/#{Fabricate(:topic_with_op).id}.json"
+
+      suggested =
+        response.parsed_body["suggested_topics"].find { |listed| listed["id"] == topic.id }
+      expect(suggested["requested_tags"]).to eq(["rust"])
+    end
   end
 end

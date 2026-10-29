@@ -31,7 +31,13 @@ RSpec.describe ReviewablesController do
         created_tag = Tag.find_by(name: "rust")
         expect(reviewable.reload).to have_attributes(
           status: "approved",
-          payload: include("resolution" => "created", "tag_id" => created_tag.id),
+          payload:
+            include(
+              "resolution" => "created",
+              "tag_id" => created_tag.id,
+              "tag_name" => "rust",
+              "tag_slug" => created_tag.slug_for_url,
+            ),
         )
         expect(topic.reload.tags).to contain_exactly(created_tag)
         expect(DiscourseTagRequests::TagRequest.exists?(tag_request.id)).to eq(false)

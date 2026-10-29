@@ -6,31 +6,43 @@ en:
           discourse_tag_requests: "Discourse Tag Requests"
   js:
     discourse_tag_requests:
+      requested_tag:
+        title: "Requested tag, pending review"
       reviewables:
-        actions:
-          approve_tag_request:
-            title: "Approve"
-            description: "Create the tag and add it to the requesting topics."
-            complete: "Tag created and added to the requesting topics."
-          approve_and_edit_tag_request:
-            title: "Approve and edit"
-            description: "Create the tag, add it to the requesting topics, then open its settings."
-            complete: "Tag created and added to the requesting topics."
+        requested_tag: "Requested tag"
+        resolution: "Resolution"
+        topics: "Topics"
+        no_topics: "No active topics"
+        requested_by: "Requested by"
+        previous_request: "Previous request"
+        view_previous_request: "View the earlier rejected request"
+        existing_tag: "A tag named “%{tag}” already exists. Use it, or add the requested name as a synonym."
+        resolutions:
+          created: "Created the tag “%{tag}”"
+          existing: "Used the existing tag “%{tag}”"
+          synonym: "Added as a synonym of “%{tag}”"
+          rejected: "Rejected"
+          rejected_permanently: "Rejected permanently"
+        skip_reasons:
+          deleted: "Skipped: the topic was deleted"
+          private_message: "Skipped: the topic is a personal message"
+          tag_limit_reached: "Skipped: the topic already has the maximum number of tags"
+          not_allowed_in_category: "Skipped: the tag isn't allowed in this topic's category"
+        choose_tag:
+          tag: "Tag"
           use_existing_tag:
-            title: "Use existing tag…"
-            description: "Add an existing tag to the requesting topics instead."
-            complete: "Existing tag added to the requesting topics."
+            title: "Use an existing tag"
+            description: "Add an existing tag to the topics that requested “%{name}”. The requested name won't be kept."
+            submit: "Use tag"
           add_as_synonym:
-            title: "Add as synonym…"
-            description: "Make the requested name a synonym of an existing tag and add that tag to the requesting topics."
-            complete: "Synonym added and tag added to the requesting topics."
-          reject:
-            title: "Reject"
-          reject_tag_request:
-            title: "Reject"
-            description: "Reject this request. The name can be requested again."
-            complete: "Tag request rejected."
-          reject_tag_request_permanently:
-            title: "Reject permanently"
-            description: "Reject this request and block the name from being requested again."
-            complete: "Tag request rejected permanently."
+            title: "Add as a synonym"
+            description: "Make “%{name}” a synonym of an existing tag, and add that tag to the requesting topics."
+            submit: "Add synonym"
+        approve_and_edit:
+          title: "Approve and edit"
+          description: "Create the tag “%{name}”, add it to the requesting topics, then open its settings."
+          submit: "Approve and edit"
+    review:
+      types:
+        reviewable_tag_request:
+          title: "Tag request"
