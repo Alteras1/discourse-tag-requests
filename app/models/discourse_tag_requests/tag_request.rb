@@ -36,6 +36,13 @@ module DiscourseTagRequests
           ReviewableTagRequest.open!(name:, requested_by:, previous_reviewable_id: reviewable_id),
       )
     end
+
+    # A soft rejection keeps the topics so a later request revives them; a
+    # permanent one only needs the row itself to block the name.
+    def reject!(permanently:)
+      tag_request_topics.delete_all if permanently
+      update!(status: permanently ? :hard_rejected : :soft_rejected)
+    end
   end
 end
 

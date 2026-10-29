@@ -53,6 +53,26 @@ RSpec.describe DiscourseTagRequests::TagRequest do
     end
   end
 
+  describe "#reject!" do
+    fab!(:tag_request)
+    fab!(:association) { Fabricate(:tag_request_topic, tag_request:) }
+
+    it "soft rejects while keeping the topics for a later request to revive" do
+      tag_request.reject!(permanently: false)
+
+      expect(tag_request.reload).to have_attributes(
+        status: "soft_rejected",
+        topics: contain_exactly(association.topic),
+      )
+    end
+
+    it "hard rejects and drops the topics when permanent" do
+      tag_request.reject!(permanently: true)
+
+      expect(tag_request.reload).to have_attributes(status: "hard_rejected", topics: be_empty)
+    end
+  end
+
   describe "#destroy" do
     it "removes its topic associations" do
       tag_request = Fabricate(:tag_request)

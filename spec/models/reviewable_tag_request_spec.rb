@@ -64,4 +64,130 @@ RSpec.describe ReviewableTagRequest do
       expect(reviewable.existing_tag).to eq(canonical)
     end
   end
+
+  describe "#build_combined_actions" do
+    subject(:actions) { reviewable.actions_for(acting_user.guardian) }
+
+    fab!(:acting_user, :moderator)
+
+    let(:action_ids) { actions.to_a.map(&:server_action) }
+
+    before do
+      SiteSetting.tagging_enabled = true
+      SiteSetting.create_tag_allowed_groups = "1|2"
+    end
+
+    it "offers every resolution, with both rejections bundled together" do
+      expect(action_ids).to contain_exactly(
+        "approve_tag_request",
+        "approve_and_edit_tag_request",
+        "use_existing_tag",
+        "add_as_synonym",
+        "reject_tag_request",
+        "reject_tag_request_permanently",
+      )
+      expect(
+        actions.bundles.find { |bundle| bundle.id == "#{reviewable.id}-reject" },
+      ).to have_attributes(
+        actions:
+          contain_exactly(
+            have_attributes(server_action: "reject_tag_request", require_reject_reason: true),
+            have_attributes(
+              server_action: "reject_tag_request_permanently",
+              require_reject_reason: true,
+            ),
+          ),
+      )
+    end
+
+    context "when a tag with the requested name exists" do
+      before { Fabricate(:tag, name: "rust") }
+
+      it "hides the approve actions" do
+        expect(action_ids).to contain_exactly(
+          "use_existing_tag",
+          "add_as_synonym",
+          "reject_tag_request",
+          "reject_tag_request_permanently",
+        )
+      end
+    end
+
+    context "when the user cannot create tags" do
+      before { SiteSetting.create_tag_allowed_groups = Group::AUTO_GROUPS[:admins] }
+
+      it "offers only using an existing tag or rejecting" do
+        expect(action_ids).to contain_exactly(
+          "use_existing_tag",
+          "reject_tag_request",
+          "reject_tag_request_permanently",
+        )
+      end
+    end
+
+    context "when the user can create tags but cannot edit tag names" do
+      fab!(:acting_user) { Fabricate(:user, trust_level: TrustLevel[3], refresh_auto_groups: true) }
+
+      before { SiteSetting.create_tag_allowed_groups = "1|2|#{Group::AUTO_GROUPS[:trust_level_3]}" }
+
+      it "hides adding as a synonym" do
+        expect(action_ids).to contain_exactly(
+          "approve_tag_request",
+          "approve_and_edit_tag_request",
+          "use_existing_tag",
+          "reject_tag_request",
+          "reject_tag_request_permanently",
+        )
+      end
+    end
+
+    context "when the review item is resolved" do
+      it "offers nothing once approved or rejected" do
+        reviewable.update!(status: :approved)
+        expect(reviewable.actions_for(acting_user.guardian).to_a).to be_empty
+
+        reviewable.update!(status: :rejected)
+        expect(reviewable.actions_for(acting_user.guardian).to_a).to be_empty
+      end
+    end
+  end
+
+  describe "#record_resolution!" do
+    fab!(:tag)
+
+    it "snapshots the request into the payload, keeping the link to a previous review item" do
+      tag_request.soft_rejected!
+      previous_reviewable_id = tag_request.reviewable_id
+      tag_request.reopen!(requested_by: user)
+      reopened = tag_request.reviewable
+
+      reopened.record_resolution!(
+        resolution: "existing",
+        tag:,
+        skipped: {
+          association.topic_id => "deleted",
+        },
+      )
+
+      expect(reopened.reload.payload).to eq(
+        "name" => "Rust",
+        "normalized_name" => "rust",
+        "previous_reviewable_id" => previous_reviewable_id,
+        "resolution" => "existing",
+        "tag_id" => tag.id,
+        "topic_ids" => [association.topic_id],
+        "requester_ids" => [association.requested_by_id],
+        "skipped" => {
+          association.topic_id.to_s => "deleted",
+        },
+      )
+    end
+
+    it "leaves out the tag when there is none" do
+      reviewable.record_resolution!(resolution: "rejected")
+
+      expect(reviewable.reload.payload).to include("resolution" => "rejected", "skipped" => {})
+      expect(reviewable.payload).not_to have_key("tag_id")
+    end
+  end
 end

@@ -6,4 +6,31 @@ en:
           discourse_tag_requests: "Discourse Tag Requests"
   js:
     discourse_tag_requests:
-      placeholder: placeholder
+      reviewables:
+        actions:
+          approve_tag_request:
+            title: "Approve"
+            description: "Create the tag and add it to the requesting topics."
+            complete: "Tag created and added to the requesting topics."
+          approve_and_edit_tag_request:
+            title: "Approve and edit"
+            description: "Create the tag, add it to the requesting topics, then open its settings."
+            complete: "Tag created and added to the requesting topics."
+          use_existing_tag:
+            title: "Use existing tag…"
+            description: "Add an existing tag to the requesting topics instead."
+            complete: "Existing tag added to the requesting topics."
+          add_as_synonym:
+            title: "Add as synonym…"
+            description: "Make the requested name a synonym of an existing tag and add that tag to the requesting topics."
+            complete: "Synonym added and tag added to the requesting topics."
+          reject:
+            title: "Reject"
+          reject_tag_request:
+            title: "Reject"
+            description: "Reject this request. The name can be requested again."
+            complete: "Tag request rejected."
+          reject_tag_request_permanently:
+            title: "Reject permanently"
+            description: "Reject this request and block the name from being requested again."
+            complete: "Tag request rejected permanently."

@@ -8,7 +8,8 @@ module DiscourseTagRequests
     # Returns the pending request for the name, or nil when the name is
     # permanently rejected.
     def call
-      tag_request = TagRequest.for_name(name).first
+      # Waits for a resolution in progress, which deletes the row on commit.
+      tag_request = TagRequest.for_name(name).lock.first
       return TagRequest.open!(name:, requested_by:) if tag_request.nil?
       return if tag_request.hard_rejected?
 

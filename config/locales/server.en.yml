@@ -3,3 +3,7 @@ en:
     discourse_tag_requests_enabled: "Let users who can't create tags request new tags when creating a topic. Requests are reviewed by staff in the review queue."
     max_tag_requests_per_topic: "Maximum number of new tags a user can request for one topic. Requested tags also count toward {{setting:max_tags_per_topic}}."
     tag_requests_visible_to_groups: "Groups that can see pending tag requests on topics and filter by them. Staff and the topic's author can always see requests on that topic."
+  discourse_tag_requests:
+    reviewables:
+      resolution_failed: "This tag request could not be resolved. It may have already been handled."
+      tag_not_found: "The selected tag no longer exists."
