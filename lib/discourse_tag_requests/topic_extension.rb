@@ -9,5 +9,16 @@ module DiscourseTagRequests
                class_name: "DiscourseTagRequests::TagRequestTopic",
                dependent: :delete_all
     end
+
+    # Requested tags count toward the topic's tag limit, so they only fill
+    # slots real tags leave free.
+    def tag_request_allowance
+      pending_requests = tag_request_topics.joins(:tag_request).merge(TagRequest.pending).count
+      limit = [
+        SiteSetting.max_tag_requests_per_topic,
+        SiteSetting.max_tags_per_topic - tags.count,
+      ].min
+      [limit - pending_requests, 0].max
+    end
   end
 end

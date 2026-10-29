@@ -3,8 +3,26 @@
 class ReviewableTagRequest < Reviewable
   has_one :tag_request, class_name: "DiscourseTagRequests::TagRequest", foreign_key: :reviewable_id
 
+  def self.open!(name:, requested_by:, previous_reviewable_id: nil)
+    create!(
+      created_by: requested_by,
+      reviewable_by_moderator: true,
+      payload: { name:, normalized_name: name.downcase, previous_reviewable_id: }.compact,
+    )
+  end
+
   def serializer
     ReviewableTagRequestSerializer
+  end
+
+  # One score per requesting topic, so the item clears the queue's default
+  # visibility threshold and frequently requested names rank higher. Only adds
+  # missing scores, so it is safe to call repeatedly.
+  def sync_priority!
+    missing_scores = tag_request.topics.count - reviewable_scores.count
+    missing_scores.times do
+      add_score(Discourse.system_user, ReviewableScore.types[:needs_approval], force_review: true)
+    end
   end
 
   def build_actions(actions, guardian, args)
@@ -33,7 +51,7 @@ class ReviewableTagRequest < Reviewable
   end
 
   def associated_topics
-    Topic.where(id: associated_topic_ids).order(:id)
+    Topic.where(id: associated_topic_ids, archetype: Archetype.default).order(:id)
   end
 
   def requesters

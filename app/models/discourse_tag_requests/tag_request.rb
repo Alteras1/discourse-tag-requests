@@ -17,6 +17,25 @@ module DiscourseTagRequests
     before_validation { self.normalized_name = name&.downcase }
 
     scope :for_name, ->(name) { where(normalized_name: name.downcase) }
+
+    # Names that are neither taken by a tag or synonym, reserved, nor permanently
+    # rejected. Expects names already cleaned with `DiscourseTagging.clean_tag`.
+    def self.requestable_names(names)
+      blocked = hard_rejected.where(normalized_name: names.map(&:downcase)).pluck(:normalized_name)
+      names.select { |name| blocked.exclude?(name.downcase) && Tag.new(name:).valid? }
+    end
+
+    def self.open!(name:, requested_by:)
+      create!(name:, reviewable: ReviewableTagRequest.open!(name:, requested_by:))
+    end
+
+    def reopen!(requested_by:)
+      update!(
+        status: :pending,
+        reviewable:
+          ReviewableTagRequest.open!(name:, requested_by:, previous_reviewable_id: reviewable_id),
+      )
+    end
   end
 end
 

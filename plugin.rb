@@ -20,4 +20,20 @@ after_initialize do
   reloadable_patch { Topic.prepend(DiscourseTagRequests::TopicExtension) }
 
   register_reviewable_type ReviewableTagRequest
+
+  add_permitted_post_create_param(:requested_tag_names, :array)
+  allow_new_queued_post_payload_attribute(:requested_tag_names)
+
+  # Requests never block topic creation, so the outcome is deliberately ignored.
+  on(:topic_created) do |topic, opts, user|
+    next if user.nil? || opts[:requested_tag_names].blank?
+
+    DiscourseTagRequests::TagRequest::Submit.call(
+      params: {
+        topic_id: topic.id,
+        tag_names: opts[:requested_tag_names],
+      },
+      guardian: user.guardian,
+    )
+  end
 end

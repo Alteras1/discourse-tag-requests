@@ -5,7 +5,7 @@ module DiscourseTagRequests
     self.table_name = "tag_request_topics"
 
     belongs_to :tag_request, class_name: "DiscourseTagRequests::TagRequest"
-    belongs_to :topic
+    belongs_to :topic, -> { with_deleted }
     belongs_to :requested_by, class_name: "User"
 
     # Does not check topic visibility; callers must already be scoped to topics

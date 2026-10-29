@@ -33,6 +33,25 @@ RSpec.describe ReviewableTagRequest do
     end
   end
 
+  describe "#sync_priority!" do
+    it "adds one score per requesting topic, only for those missing a score" do
+      reviewable.sync_priority!
+      Fabricate(:tag_request_topic, tag_request:)
+
+      expect { 2.times { reviewable.sync_priority! } }.to change {
+        reviewable.reviewable_scores.count
+      }.from(1).to(2)
+    end
+  end
+
+  describe "#associated_topics" do
+    it "excludes private messages" do
+      Fabricate(:tag_request_topic, tag_request:, topic: Fabricate(:private_message_topic))
+
+      expect(reviewable.associated_topics).to contain_exactly(association.topic)
+    end
+  end
+
   describe "#existing_tag" do
     it "returns nil when no tag uses the requested name" do
       expect(reviewable.existing_tag).to be_nil
