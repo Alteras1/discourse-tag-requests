@@ -37,6 +37,34 @@ after_initialize do
     )
   end
 
+  TopicList.on_preload do |topics, topic_list|
+    next if !SiteSetting.discourse_tag_requests_enabled || topics.empty?
+
+    names_by_topic_id =
+      DiscourseTagRequests::TagRequestTopic.pending_names_by_topic_id(
+        topics.map(&:id),
+        Guardian.new(topic_list.current_user),
+      )
+    topics.each { |topic| topic.preload_requested_tag_names(names_by_topic_id[topic.id]) }
+  end
+
+  add_to_serializer(
+    :topic_list_item,
+    :requested_tags,
+    include_condition: -> { object.requested_tag_names.present? },
+  ) { object.requested_tag_names }
+
+  add_to_serializer(
+    :topic_view,
+    :requested_tags,
+    include_condition: -> { requested_tags.present? },
+  ) do
+    @requested_tags ||=
+      DiscourseTagRequests::TagRequestTopic.pending_names_by_topic_id([object.topic.id], scope)[
+        object.topic.id
+      ]
+  end
+
   add_filter_custom_filter("pending-tag") do |scope, values, guardian|
     DiscourseTagRequests::PendingTagFilter.new(scope:, values:, guardian:).call
   end

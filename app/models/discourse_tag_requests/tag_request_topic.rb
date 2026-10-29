@@ -28,6 +28,16 @@ module DiscourseTagRequests
               visible.where(topics: { user_id: guardian.user.id })
             end
           end
+
+    # `{ topic_id => [requested names] }` for the pending requests the viewer may see.
+    def self.pending_names_by_topic_id(topic_ids, guardian)
+      visible_to(guardian)
+        .where(topic_id: topic_ids)
+        .order("tag_requests.name")
+        .pluck(:topic_id, "tag_requests.name")
+        .group_by(&:first)
+        .transform_values { |pairs| pairs.map(&:last) }
+    end
   end
 end
 

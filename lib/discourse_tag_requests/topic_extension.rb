@@ -8,6 +8,15 @@ module DiscourseTagRequests
       has_many :tag_request_topics,
                class_name: "DiscourseTagRequests::TagRequestTopic",
                dependent: :delete_all
+
+      # Pending request names visible to the current viewer, or nil unless a
+      # topic list preloaded them (they depend on the viewer, so there's no
+      # fallback query here).
+      attr_reader :requested_tag_names
+    end
+
+    def preload_requested_tag_names(names)
+      @requested_tag_names = names
     end
 
     # Requested tags count toward the topic's tag limit, so they only fill

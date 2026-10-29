@@ -54,6 +54,16 @@ RSpec.describe DiscourseTagRequests::TagRequestTopic do
     end
   end
 
+  describe ".pending_names_by_topic_id" do
+    it "groups the visible pending names by topic, sorted by name" do
+      Fabricate(:tag_request_topic, tag_request: Fabricate(:tag_request, name: "alpha"), topic:)
+
+      expect(
+        described_class.pending_names_by_topic_id([topic.id, other_topic.id], author.guardian),
+      ).to eq(topic.id => ["alpha", association.tag_request.name])
+    end
+  end
+
   it "is removed when its topic is permanently deleted" do
     topic.destroy!
 
