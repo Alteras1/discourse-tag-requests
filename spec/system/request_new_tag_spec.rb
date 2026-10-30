@@ -44,4 +44,21 @@ RSpec.describe "Request new tag" do
     expect(topic_page).to have_topic_tag("rust")
     expect(topic_page).to have_no_requested_tag("rust")
   end
+
+  it "lets an author change their topic's requests from the topic title" do
+    topic = Fabricate(:topic, user: author, category:)
+    Fabricate(:post, topic:, user: author)
+    Fabricate(:tag_request_topic, tag_request: Fabricate(:tag_request, name: "rust"), topic:)
+
+    sign_in(author)
+    topic_page.visit_topic(topic)
+
+    expect(topic_page).to have_requested_tag("rust")
+
+    topic_page.edit_requested_tags(request: "go", withdraw: "rust")
+
+    expect(topic_page).to have_requested_tag("go")
+    expect(topic_page).to have_no_requested_tag("rust")
+    expect(DiscourseTagRequests::TagRequest.pending_on(topic).pluck(:name)).to eq(["go"])
+  end
 end

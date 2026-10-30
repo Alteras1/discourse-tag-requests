@@ -29,6 +29,7 @@ en:
           synonym: "Added as a synonym of “%{tag}”"
           rejected: "Rejected"
           rejected_permanently: "Rejected permanently"
+          withdrawn: "Withdrawn by the requester"
         skip_reasons:
           deleted: "Skipped: the topic was deleted"
           private_message: "Skipped: the topic is a personal message"

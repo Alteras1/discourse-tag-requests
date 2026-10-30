@@ -12,15 +12,7 @@ module DiscourseTagRequests
       validates :topic_id, presence: true
       validates :tag_names, presence: true
 
-      before_validation do
-        self.tag_names =
-          Array
-            .wrap(tag_names)
-            .map { |tag_name| DiscourseTagging.clean_tag(tag_name.to_s) }
-            .compact_blank
-            .uniq(&:downcase)
-            .first(SiteSetting.max_tag_requests_per_topic)
-      end
+      before_validation { self.tag_names = TagRequest.clean_names(tag_names) }
     end
 
     model :topic
@@ -44,7 +36,7 @@ module DiscourseTagRequests
     end
 
     def can_request_tags(guardian:, topic:)
-      topic.regular? && guardian.can_request_tags? && topic.user_id == guardian.user.id
+      guardian.can_request_tags_on?(topic)
     end
 
     def fetch_requestable_names(params:, topic:)

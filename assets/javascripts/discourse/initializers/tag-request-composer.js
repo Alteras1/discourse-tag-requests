@@ -4,10 +4,22 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import RequestTagCreateRow from "../components/request-tag-create-row.gjs";
 import RequestedTagChoice from "../components/requested-tag-choice.gjs";
 import { missingRequiredTags } from "../lib/missing-required-tags.js";
+import { requestedTag } from "../lib/requested-tag.js";
 
 // Requests ride along in `composer.tags` as core's "new tag" items
 // (`isNew: true`), which users who can't create tags never otherwise have.
 const tagName = (tag) => (typeof tag === "string" ? tag : tag?.name);
+
+// Drafts and submitted tags lose the `isNew` flag, so requests are recognised
+// as the id-less tags with a requested name; existing tags always have an id.
+function withoutRequests(tags, names) {
+  const requested = names.map((name) => name.toLowerCase());
+  return makeArray(tags).filter(
+    (tag) =>
+      !tag?.isNew &&
+      (tag?.id || !requested.includes(tagName(tag)?.toLowerCase()))
+  );
+}
 
 // A module function rather than a `#` method: `modifyClass` copies members onto
 // the patched class, which JS private methods don't survive.
@@ -27,10 +39,16 @@ function extendTagChooser(api) {
     (Superclass) =>
       class extends Superclass {
         get acceptsTagRequests() {
+          if (
+            !getOwner(this).lookup("service:current-user")?.can_request_tags
+          ) {
+            return false;
+          }
+
           return (
-            !!getOwner(this).lookup("service:current-user")?.can_request_tags &&
-            !!this.element?.closest("#reply-control") &&
-            !!getOwner(this).lookup("service:composer").model?.creatingTopic
+            !!this.options?.acceptsTagRequests ||
+            (!!this.element?.closest("#reply-control") &&
+              !!getOwner(this).lookup("service:composer").model?.creatingTopic)
           );
         }
 
@@ -86,11 +104,9 @@ function extendComposer(api) {
       if (!names?.length) {
         return;
       }
-      // Keep real tags as-is; only replace any stale isNew entries.
-      const tags = makeArray(this.tags).filter((tag) => !tag?.isNew);
       this.set("tags", [
-        ...tags,
-        ...names.map((name) => ({ id: name, name, isNew: true })),
+        ...withoutRequests(this.tags, names),
+        ...names.map(requestedTag),
       ]);
     },
   });
@@ -110,9 +126,9 @@ function extendComposer(api) {
   // A requested name that matches a hidden tag would make the server reject
   // the topic, so requests are only sent as `requested_tag_names`.
   api.addModelCallback("post", "beforeCreate", function (props) {
-    if (makeArray(props.requested_tag_names).length && props.tags) {
-      // All isNew entries are requests; strip them — they're already in requested_tag_names.
-      props.tags = props.tags.filter((tag) => !tag?.isNew);
+    const names = makeArray(props.requested_tag_names);
+    if (names.length && props.tags) {
+      props.tags = withoutRequests(props.tags, names);
     }
   });
 }

@@ -17,6 +17,19 @@ module DiscourseTagRequests
     before_validation { self.normalized_name = name&.downcase }
 
     scope :for_name, ->(name) { where(normalized_name: name.downcase) }
+    scope :pending_on,
+          ->(topic) do
+            pending.where(id: TagRequestTopic.where(topic_id: topic.id).select(:tag_request_id))
+          end
+
+    def self.clean_names(names)
+      Array
+        .wrap(names)
+        .map { |name| DiscourseTagging.clean_tag(name.to_s) }
+        .compact_blank
+        .uniq(&:downcase)
+        .first(SiteSetting.max_tag_requests_per_topic)
+    end
 
     # Names that are neither taken by a tag or synonym, reserved, nor permanently
     # rejected. Expects names already cleaned with `DiscourseTagging.clean_tag`.
