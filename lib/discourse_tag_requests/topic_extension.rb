@@ -25,7 +25,7 @@ module DiscourseTagRequests
       pending_requests = tag_request_topics.joins(:tag_request).merge(TagRequest.pending).count
       limit = [
         SiteSetting.max_tag_requests_per_topic,
-        SiteSetting.max_tags_per_topic - tags.count,
+        SiteSetting.max_tags_per_topic - tags.size,
       ].min
       [limit - pending_requests, 0].max
     end

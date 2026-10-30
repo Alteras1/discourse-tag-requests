@@ -21,8 +21,13 @@ module DiscourseTagRequests
     # Names that are neither taken by a tag or synonym, reserved, nor permanently
     # rejected. Expects names already cleaned with `DiscourseTagging.clean_tag`.
     def self.requestable_names(names)
-      blocked = hard_rejected.where(normalized_name: names.map(&:downcase)).pluck(:normalized_name)
-      names.select { |name| blocked.exclude?(name.downcase) && Tag.new(name:).valid? }
+      downcased = names.map(&:downcase)
+      blocked = hard_rejected.where(normalized_name: downcased).pluck(:normalized_name)
+      existing = Tag.where_name(names).pluck("lower(tags.name)")
+      names.select do |name|
+        dn = name.downcase
+        blocked.exclude?(dn) && existing.exclude?(dn) && Tag.new(name:).valid?
+      end
     end
 
     def self.open!(name:, requested_by:)

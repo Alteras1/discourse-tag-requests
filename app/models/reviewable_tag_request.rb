@@ -25,7 +25,7 @@ class ReviewableTagRequest < Reviewable
   # visibility threshold and frequently requested names rank higher. Only adds
   # missing scores, so it is safe to call repeatedly.
   def sync_priority!
-    missing_scores = tag_request.topics.count - reviewable_scores.count
+    missing_scores = tag_request.tag_request_topics.count - reviewable_scores.count
     missing_scores.times do
       add_score(Discourse.system_user, ReviewableScore.types[:needs_approval], force_review: true)
     end
@@ -89,20 +89,11 @@ class ReviewableTagRequest < Reviewable
   end
 
   def perform_reject_tag_request(performed_by, args)
-    self.reject_reason = args[:reject_reason]
-    return resolution_failure(errors.full_messages) if !valid?
-    resolve_with(DiscourseTagRequests::TagRequest::Reject, performed_by, :rejected)
+    perform_reject(performed_by, args)
   end
 
   def perform_reject_tag_request_permanently(performed_by, args)
-    self.reject_reason = args[:reject_reason]
-    return resolution_failure(errors.full_messages) if !valid?
-    resolve_with(
-      DiscourseTagRequests::TagRequest::Reject,
-      performed_by,
-      :rejected,
-      permanently: true,
-    )
+    perform_reject(performed_by, args, permanently: true)
   end
 
   # Snapshot kept on the reviewable, since the request it describes is deleted
@@ -129,11 +120,7 @@ class ReviewableTagRequest < Reviewable
   # Once resolved or hard-rejected the associations are deleted, so fall back
   # to the snapshot written into the payload at that point.
   def associated_topic_ids
-    if tag_request
-      tag_request.tag_request_topics.pluck(:topic_id)
-    else
-      payload["topic_ids"] || []
-    end
+    tag_request ? tag_request.tag_request_topics.pluck(:topic_id) : payload["topic_ids"] || []
   end
 
   def requester_ids
@@ -154,11 +141,18 @@ class ReviewableTagRequest < Reviewable
 
   # The canonical tag that already uses the requested name, if any.
   def existing_tag
+    return @existing_tag if defined?(@existing_tag)
     tag = Tag.where_name(requested_name).includes(:target_tag).first
-    tag&.target_tag || tag
+    @existing_tag = tag&.target_tag || tag
   end
 
   private
+
+  def perform_reject(performed_by, args, permanently: false)
+    self.reject_reason = args[:reject_reason]
+    return resolution_failure(errors.full_messages) if !valid?
+    resolve_with(DiscourseTagRequests::TagRequest::Reject, performed_by, :rejected, permanently:)
+  end
 
   def resolve_with(service, performed_by, status, **params)
     service.call(params: { reviewable_id: id, **params }, guardian: performed_by.guardian) do

@@ -86,10 +86,8 @@ function extendComposer(api) {
       if (!names?.length) {
         return;
       }
-      const requested = names.map((name) => name.toLowerCase());
-      const tags = makeArray(this.tags).filter(
-        (tag) => !requested.includes(tagName(tag)?.toLowerCase())
-      );
+      // Keep real tags as-is; only replace any stale isNew entries.
+      const tags = makeArray(this.tags).filter((tag) => !tag?.isNew);
       this.set("tags", [
         ...tags,
         ...names.map((name) => ({ id: name, name, isNew: true })),
@@ -112,13 +110,9 @@ function extendComposer(api) {
   // A requested name that matches a hidden tag would make the server reject
   // the topic, so requests are only sent as `requested_tag_names`.
   api.addModelCallback("post", "beforeCreate", function (props) {
-    const requested = makeArray(props.requested_tag_names).map((name) =>
-      name.toLowerCase()
-    );
-    if (requested.length && props.tags) {
-      props.tags = props.tags.filter(
-        (tag) => tag.id || !requested.includes(tagName(tag).toLowerCase())
-      );
+    if (makeArray(props.requested_tag_names).length && props.tags) {
+      // All isNew entries are requests; strip them — they're already in requested_tag_names.
+      props.tags = props.tags.filter((tag) => !tag?.isNew);
     }
   });
 }

@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import getURL from "discourse/lib/get-url";
+import { userPath } from "discourse/lib/url";
 import { i18n } from "discourse-i18n";
 
 const SKIP_REASONS = [
@@ -24,7 +25,7 @@ export default class ReviewableTagRequest extends Component {
   get requesters() {
     return (this.args.reviewable.requesters || []).map((user) => ({
       username: user.username,
-      url: getURL(`/u/${user.username}`),
+      url: userPath(user.username),
     }));
   }
 

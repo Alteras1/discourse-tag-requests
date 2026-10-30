@@ -96,8 +96,16 @@ RSpec.describe DiscourseTagRequests::PendingTagFilter do
       TopicsFilter.option_info(guardian).map { |option| option[:name] }
     end
 
-    it "is offered to signed-in users" do
-      expect(option_names(other_user.guardian)).to include("pending-tag:")
+    it "is offered to users in tag_requests_allowed_groups" do
+      expect(option_names(other_user.guardian)).not_to include("pending-tag:")
+
+      other_user.change_trust_level!(TrustLevel[1])
+
+      expect(option_names(other_user.reload.guardian)).to include("pending-tag:")
+    end
+
+    it "is offered to users in tag_requests_visible_to_groups" do
+      expect(option_names(admin.guardian)).to include("pending-tag:")
     end
 
     it "is offered to anonymous users only when they may see requests" do

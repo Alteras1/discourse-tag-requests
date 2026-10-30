@@ -8,47 +8,58 @@ tag, an existing tag, or a synonym.
 
 For more information, please see: **url to meta topic**
 
-> **Status:** in development. Not all features below are implemented yet.
-
 ## How it works
 
-1. **Requesting.** When a user who can't create tags types a name in the
-   composer's tag chooser that doesn't match an existing tag, they can pick
-   "Request new tag". The topic is created straight away with its real tags;
-   requested names are stored separately and never block topic creation.
-2. **Reviewing.** Each requested name gets one review item, shared by every
+1. **Requesting.** In the composer's tag chooser, a user who can request tags
+   types a name that doesn't exist yet and picks **Request new tag**. The
+   request sits alongside the topic's other tags, marked as pending, and can be
+   removed like any tag. Requested tags share the topic's
+   `max_tags_per_topic` limit and survive saving a draft.
+2. **Posting.** The topic is created straight away with its existing tags;
+   requests are stored separately and never block topic creation. Names that
+   can't be requested (reserved, already a tag, or permanently rejected) are
+   dropped silently.
+3. **Reviewing.** Each requested name gets one review item, shared by every
    topic that requested it. Staff can:
    - **Approve** – create the tag and add it to the topics
-   - **Approve & edit** – the same, then open the new tag's settings
+   - **Approve and edit** – the same, then open the new tag's settings
    - **Use existing tag** – add a tag that already exists instead
    - **Add as synonym** – make the name a synonym of an existing tag
    - **Reject** – the name can be requested again later
    - **Reject permanently** – the name can never be requested again
-3. **Applying.** On approval the tag is added to each topic that requested
-   it, following the usual category and tag group rules. Topics where the
-   tag isn't allowed are skipped and listed on the review item.
+4. **Applying.** On approval the tag is added to each topic that requested
+   it, following the usual category and tag group rules. Topics where the tag
+   isn't allowed are skipped and listed on the review item.
 
 Users are not notified about the outcome of their requests.
 
+Requested tags don't count toward a category's required tags: a topic still
+needs enough existing tags to be posted.
+
 ## Finding requested tags
 
-Pending requests appear as pills next to a topic's tags. Use the
-`requested-tag:` filter on `/filter` to find topics by requested tag:
+Pending requests appear as pills next to a topic's tags, in topic lists, on
+the topic page, and in suggested topics. Use the `pending-tag:` filter on
+`/filter` to find topics with pending requests:
 
-- `requested-tag:rust` – topics with this requested (or real) tag
-- `requested-tag:rust,go` – topics with any of these
-- `requested-tag:rust+go` – topics with all of these
-- `-requested-tag:rust` – topics without it
+- `pending-tag:rust` – topics with this pending request
+- `pending-tag:rust,go` – topics with any of these
+- `pending-tag:rust+go` – topics with all of these
+- `-pending-tag:rust` – topics without it
 
-`requested-tag:` also matches real tags, so links keep working after a
-request is approved.
+Once a request is approved, use the regular `tag:` filter instead.
 
-## Who can see requests
+## Who can request and see requests
 
-- Staff can always see requests.
-- A topic's author can always see requests on their own topic.
-- Other users can see requests if they belong to a group in
-  **tag requests visible to groups**.
+Users can request tags when they can tag topics, can't create tags, and
+belong to a group in **tag requests allowed groups**. Anyone who can create
+tags creates them directly instead.
+
+Requests are visible to:
+
+- staff
+- a topic's author, on their own topic
+- members of a group in **tag requests visible to groups**
 
 ## Settings
 
@@ -61,6 +72,7 @@ request is approved.
 
 Tagging must be enabled for the plugin to work.
 
-## Screenshots
+## Credits
 
-_TODO_
+The `circle-dashed` pending icon is from [Lucide](https://lucide.dev), used
+under the ISC License.

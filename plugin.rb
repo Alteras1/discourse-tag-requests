@@ -84,7 +84,7 @@ after_initialize do
   # Authors always see requests on their own topics, so any signed-in user
   # may have something to filter by.
   register_modifier(:topics_filter_options) do |results, guardian|
-    if guardian.authenticated? ||
+    if guardian.in_any_groups?(SiteSetting.tag_requests_allowed_groups_map) ||
          guardian.in_any_groups?(SiteSetting.tag_requests_visible_to_groups_map)
       results << {
         name: "pending-tag:",
