@@ -3,6 +3,7 @@ import { makeArray } from "discourse/lib/helpers";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import RequestTagCreateRow from "../components/request-tag-create-row.gjs";
 import RequestedTagChoice from "../components/requested-tag-choice.gjs";
+import { missingRequiredTags } from "../lib/missing-required-tags.js";
 
 // Requests ride along in `composer.tags` as core's "new tag" items
 // (`isNew: true`), which users who can't create tags never otherwise have.
@@ -95,6 +96,15 @@ function extendComposer(api) {
       ]);
     },
   });
+
+  // The composer counts requests toward a category's required tags, but the
+  // server doesn't, so submitting would fail there.
+  api.registerValueTransformer(
+    "composer-service-cannot-submit-post",
+    ({ value, context: { model } }) =>
+      value ||
+      (model?.requestedTagNames?.length > 0 && missingRequiredTags(model) > 0)
+  );
 
   api.serializeOnCreate("requested_tag_names", "requestedTagNames");
   api.serializeToDraft("requested_tag_names", "requestedTagNames");

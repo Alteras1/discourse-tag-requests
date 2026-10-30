@@ -11,6 +11,9 @@ en:
       composer:
         request_tag: "Request new tag: %{name}"
         filter_placeholder: "Search or request…"
+        existing_tags_required:
+          one: "Choose at least %{count} existing tag. Requested tags don't count until they're approved."
+          other: "Choose at least %{count} existing tags. Requested tags don't count until they're approved."
       reviewables:
         requested_tag: "Requested tag"
         resolution: "Resolution"
