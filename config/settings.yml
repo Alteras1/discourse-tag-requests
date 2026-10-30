@@ -2,6 +2,11 @@ discourse_tag_requests:
   discourse_tag_requests_enabled:
     default: false
     client: true
+  tag_requests_allowed_groups:
+    type: group_list
+    list_type: compact
+    default: "11" # @trust_level_1
+    allow_any: false
   max_tag_requests_per_topic:
     default: 3
     min: 1

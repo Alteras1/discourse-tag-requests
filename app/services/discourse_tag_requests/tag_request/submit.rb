@@ -44,8 +44,7 @@ module DiscourseTagRequests
     end
 
     def can_request_tags(guardian:, topic:)
-      topic.regular? && guardian.authenticated? && topic.user_id == guardian.user.id &&
-        guardian.can_tag_topics? && !guardian.can_create_tag?
+      topic.regular? && guardian.can_request_tags? && topic.user_id == guardian.user.id
     end
 
     def fetch_requestable_names(params:, topic:)

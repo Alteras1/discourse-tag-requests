@@ -11,6 +11,7 @@
 enabled_site_setting :discourse_tag_requests_enabled
 
 register_asset "stylesheets/requested-tags.scss"
+register_svg_icon "circle-dashed"
 
 module ::DiscourseTagRequests
   PLUGIN_NAME = "discourse-tag-requests"
@@ -19,9 +20,14 @@ end
 require_relative "lib/discourse_tag_requests/engine"
 
 after_initialize do
-  reloadable_patch { Topic.prepend(DiscourseTagRequests::TopicExtension) }
+  reloadable_patch do
+    Topic.prepend(DiscourseTagRequests::TopicExtension)
+    Guardian.prepend(DiscourseTagRequests::GuardianExtension)
+  end
 
   register_reviewable_type ReviewableTagRequest
+
+  add_to_serializer(:current_user, :can_request_tags) { scope.can_request_tags? }
 
   add_permitted_post_create_param(:requested_tag_names, :array)
   allow_new_queued_post_payload_attribute(:requested_tag_names)

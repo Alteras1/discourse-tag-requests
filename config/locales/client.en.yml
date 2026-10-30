@@ -8,6 +8,9 @@ en:
     discourse_tag_requests:
       requested_tag:
         title: "Requested tag, pending review"
+      composer:
+        request_tag: "Request new tag: %{name}"
+        filter_placeholder: "Search or request…"
       reviewables:
         requested_tag: "Requested tag"
         resolution: "Resolution"

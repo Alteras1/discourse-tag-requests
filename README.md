@@ -55,6 +55,7 @@ request is approved.
 | Setting | Description | Default |
 |---|---|---|
 | `discourse_tag_requests_enabled` | Enable the plugin | `false` |
+| `tag_requests_allowed_groups` | Groups that can request tags. Members who can also create tags (`create_tag_allowed_groups`) create them directly instead. | trust level 1 |
 | `max_tag_requests_per_topic` | Maximum requested tags per topic. Requested tags also count toward `max_tags_per_topic`. | `3` |
 | `tag_requests_visible_to_groups` | Groups that can see pending requests | admins, moderators |
 

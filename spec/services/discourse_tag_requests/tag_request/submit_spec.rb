@@ -69,6 +69,12 @@ RSpec.describe DiscourseTagRequests::TagRequest::Submit do
       it { is_expected.to fail_a_policy(:can_request_tags) }
     end
 
+    context "when the user is not in the groups allowed to request tags" do
+      before { SiteSetting.tag_requests_allowed_groups = Group::AUTO_GROUPS[:trust_level_4] }
+
+      it { is_expected.to fail_a_policy(:can_request_tags) }
+    end
+
     context "when no name is requestable" do
       let(:tag_names) { %w[none] }
 

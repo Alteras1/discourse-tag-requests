@@ -29,5 +29,5 @@ export default function renderRequestedTag(
     i18n("discourse_tag_requests.requested_tag.title")
   );
 
-  return `<${tagName}${link} class="${classes}" title="${title}">${iconHTML("circle-info")}${escapeExpression(name)}</${tagName}>`;
+  return `<${tagName}${link} class="${classes}" title="${title}">${iconHTML("circle-dashed")}${escapeExpression(name)}</${tagName}>`;
 }
